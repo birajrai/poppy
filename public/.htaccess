@@ -10,8 +10,7 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 
 # Deny access to .env files if somehow accessible
 <FilesMatch "^\.env.*$">
-    Order Allow,Deny
-    Deny from all
+    Require all denied
 </FilesMatch>
 
 # Disable directory listing

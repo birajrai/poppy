@@ -4,10 +4,16 @@
 if (php_sapi_name() === 'cli-server') {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 } else {
-    $request_uri = $_SERVER['REQUEST_URI'];
-    $script_name = $_SERVER['SCRIPT_NAME'];
-    $path = substr($request_uri, strlen(dirname($script_name)));
-    $path = parse_url($path, PHP_URL_PATH);
+    // For Apache with mod_rewrite
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    // Remove script name if present (e.g., if accessed as /index.php/admin)
+    $script_name = basename($_SERVER['SCRIPT_NAME']);
+    if (strpos($path, $script_name) === 1) {
+        $path = substr($path, strlen('/' . $script_name));
+    }
+    if (empty($path)) {
+        $path = '/';
+    }
 }
 
 // Define allowed routes (whitelist) - sorted by length (longest first)
