@@ -9,21 +9,21 @@ $path = substr($request_uri, strlen(dirname($script_name)));
 // Remove query string
 $path = parse_url($path, PHP_URL_PATH);
 
-// Define allowed routes (whitelist)
+// Define allowed routes (whitelist) - sorted by length (longest first)
 $routes = [
+    '/admin/create' => __DIR__ . '/../app/Admin/CreateBucket.php',
+    '/admin/delete' => __DIR__ . '/../app/Admin/DeleteBucket.php',
     '/api/upload' => __DIR__ . '/../app/Api/Upload.php',
     '/api/file'   => __DIR__ . '/../app/Api/File.php',
     '/api/delete' => __DIR__ . '/../app/Api/Delete.php',
     '/admin'      => __DIR__ . '/../app/Admin/Dashboard.php',
-    '/admin/create' => __DIR__ . '/../app/Admin/CreateBucket.php',
-    '/admin/delete' => __DIR__ . '/../app/Admin/DeleteBucket.php',
     '/'           => __DIR__ . '/../app/Admin/Dashboard.php',
 ];
 
-// Find matching route
+// Find matching route (exact match or followed by query string)
 $matched = false;
 foreach ($routes as $route => $handler) {
-    if (strpos($path, $route) === 0) {
+    if ($path === $route || strpos($path, $route . '?') === 0 || strpos($path, $route . '/') === 0) {
         require_once $handler;
         $matched = true;
         break;

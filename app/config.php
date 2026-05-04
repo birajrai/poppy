@@ -71,11 +71,35 @@ function auth_ok($bucket, $key) {
 // Admin auth
 function admin_auth() {
     if (!isset($_SERVER['PHP_AUTH_USER']) ||
-        $_SERVER['PHP_AUTH_USER'] !== ADMIN_USER ||
-        !password_verify($_SERVER['PHP_AUTH_PW'] ?? '', ADMIN_PASS)) {
+        $_SERVER['PHP_AUTH_USER'] !== ADMIN_USER) {
         header('WWW-Authenticate: Basic realm="Poppy Storage Admin"');
         header('HTTP/1.0 401 Unauthorized');
         exit('Unauthorized');
+    }
+
+    $input_pass = $_SERVER['PHP_AUTH_PW'] ?? '';
+
+    // Support both plaintext and bcrypt hashed passwords
+    if (ADMIN_PASS === '') {
+        header('WWW-Authenticate: Basic realm="Poppy Storage Admin"');
+        header('HTTP/1.0 401 Unauthorized');
+        exit('Unauthorized');
+    }
+
+    // Check if ADMIN_PASS is a bcrypt hash
+    if (password_get_info(ADMIN_PASS)['algo'] !== null) {
+        if (!password_verify($input_pass, ADMIN_PASS)) {
+            header('WWW-Authenticate: Basic realm="Poppy Storage Admin"');
+            header('HTTP/1.0 401 Unauthorized');
+            exit('Unauthorized');
+        }
+    } else {
+        // Plaintext comparison
+        if (!hash_equals(ADMIN_PASS, $input_pass)) {
+            header('WWW-Authenticate: Basic realm="Poppy Storage Admin"');
+            header('HTTP/1.0 401 Unauthorized');
+            exit('Unauthorized');
+        }
     }
 }
 
@@ -108,6 +132,11 @@ function validate_upload($file) {
     $mime = detect_mime($file['tmp_name']);
     if (!isset(ALLOWED_TYPES[$mime])) return 'Invalid file type (only JPG, PNG, WebP, PDF allowed)';
     return true;
+}
+
+// Load .env.example if .env doesn't exist (for defaults)
+if (!file_exists(__DIR__ . '/../.env')) {
+    load_env(__DIR__ . '/../.env.example');
 }
 
 // Load per-bucket files.json

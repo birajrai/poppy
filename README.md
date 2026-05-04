@@ -39,13 +39,13 @@ poppy-storage/
 ## Installation
 
 1. Upload to cPanel home directory
-2. Point your domain (e.g., `poppy.bharosilo.com`) to `poppy-storage/public/`
+2. Point your domain (e.g., `localhost:3060`) to `poppy-storage/public/`
 3. Copy `.env.example` to `.env` and fill in:
    ```env
-   URL=https://poppy.bharosilo.com
-   ADMIN_USER=admin
-   ADMIN_PASS=your_strong_password
-   MAX_SIZE=10485760
+    URL=http://localhost:3060
+    ADMIN_USER=admin
+    ADMIN_PASS=your_strong_password
+    MAX_SIZE=10485760
    ```
 4. Set permissions: `storage/` to 0750, JSON files to 0640
 
@@ -57,7 +57,7 @@ const formData = new FormData();
 formData.append("file", file);
 
 const res = await fetch(
-  `https://poppy.bharosilo.com/api/upload?bucket=mybucket&key=API_KEY`,
+  `http://localhost:3060/api/upload?bucket=mybucket&key=API_KEY`,
   { method: "POST", body: formData }
 );
 const data = await res.json();
@@ -66,19 +66,19 @@ const data = await res.json();
 
 ### Display
 ```jsx
-<img src="https://poppy.bharosilo.com/api/file?bucket=mybucket&f=a1/abc123.jpg" />
+<img src="http://localhost:3060/api/file?bucket=mybucket&f=a1/abc123.jpg" />
 ```
 
 ### Delete
 ```js
 await fetch(
-  `https://poppy.bharosilo.com/api/delete?bucket=mybucket&f=a1/abc123.jpg&key=API_KEY`
+  `http://localhost:3060/api/delete?bucket=mybucket&f=a1/abc123.jpg&key=API_KEY`
 );
 ```
 
 ## Admin Panel
 
-Access at `https://yourdomain.com/admin` - protected with basic auth.
+Access at `http://localhost:3060/admin` - protected with basic auth.
 
 - Create buckets (API key shown once after creation)
 - Delete buckets (recursive file cleanup)
