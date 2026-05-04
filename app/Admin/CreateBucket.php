@@ -41,6 +41,11 @@ mkdir(BASE_DIR . $name, 0755, true);
 // Create empty files.json for the bucket
 save_files($name, []);
 
+// Log bucket creation
+audit_log('BUCKET_CREATED', [
+    'bucket' => $name
+]);
+
 // Show success with plaintext key (only time it's shown)
 ?>
 <!DOCTYPE html>

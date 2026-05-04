@@ -1,8 +1,18 @@
 <?php
 
-// Enable error reporting for debugging (remove in production)
+// Error handling based on environment
+$app_env = getenv('APP_ENV') ?: 'production';
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+
+if ($app_env === 'development') {
+    ini_set('display_errors', 1);
+    ini_set('log_errors', 1);
+} else {
+    // Production: log errors, don't display
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
+    ini_set('error_log', __DIR__ . '/../storage/error.log');
+}
 
 // For PHP built-in server, route all requests through this file
 if (php_sapi_name() === 'cli-server') {
@@ -42,7 +52,7 @@ foreach ($routes as $route => $handler) {
 }
 
 if (!$matched) {
-    header('HTTP/1.0 404 Not Found');
+    http_response_code(404);
     header('Content-Type: application/json');
     echo json_encode(['error' => 'Route not found']);
 }

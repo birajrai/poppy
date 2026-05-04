@@ -24,23 +24,47 @@ if (!get_bucket($name)) {
 }
 
 // Remove from buckets.json
-$buckets = load_buckets();
-$new = array_filter($buckets, fn($b) => $b['name'] !== $name);
-save_buckets(array_values($new));
+try {
+    $buckets = load_buckets();
+    $new = array_filter($buckets, fn($b) => $b['name'] !== $name);
+    save_buckets(array_values($new));
+} catch (Exception $e) {
+    error_log("Error updating buckets.json: " . $e->getMessage());
+    exit('Error deleting bucket from metadata.');
+}
 
 // Recursively delete bucket folder and all contents
 $bucket_dir = BASE_DIR . $name;
 if (is_dir($bucket_dir)) {
-    $files = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($bucket_dir, RecursiveDirectoryIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::CHILD_FIRST
-    );
-    foreach ($files as $file) {
-        if ($file->isDir()) rmdir($file->getRealPath());
-        else unlink($file->getRealPath());
+    try {
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($bucket_dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($files as $file) {
+            if ($file->isDir()) {
+                if (!@rmdir($file->getRealPath())) {
+                    error_log("Failed to delete directory: " . $file->getRealPath());
+                }
+            } else {
+                if (!@unlink($file->getRealPath())) {
+                    error_log("Failed to delete file: " . $file->getRealPath());
+                }
+            }
+        }
+        if (!@rmdir($bucket_dir)) {
+            error_log("Failed to delete bucket directory: $bucket_dir");
+        }
+    } catch (Exception $e) {
+        error_log("Error deleting bucket directory: " . $e->getMessage());
+        exit('Error deleting bucket files.');
     }
-    rmdir($bucket_dir);
 }
+
+// Log bucket deletion
+audit_log('BUCKET_DELETED', [
+    'bucket' => $name
+]);
 
 header('Location: /admin');
 exit;
