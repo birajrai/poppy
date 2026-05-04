@@ -1,5 +1,9 @@
 <?php
 
+// Enable error reporting for debugging (remove in production)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // For PHP built-in server, route all requests through this file
 if (php_sapi_name() === 'cli-server') {
     $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

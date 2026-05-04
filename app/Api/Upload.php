@@ -25,7 +25,7 @@ if ($validation !== true) {
 }
 
 $mime = detect_mime($file['tmp_name']);
-$ext = $ALLOWED_TYPES[$mime];
+$ext = ALLOWED_TYPES[$mime];
 
 // Generate unique filename with sharding
 $hash = bin2hex(random_bytes(16));
