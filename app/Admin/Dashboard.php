@@ -26,7 +26,7 @@ require_once __DIR__ . '/Auth.php';
 <body>
     <h1>Poppy Storage - Buckets</h1>
 
-    <form method="POST" action="create">
+    <form method="POST" action="/admin/create">
         <h3>Create New Bucket</h3>
         <input type="hidden" name="_csrf" value="<?= csrf_token() ?>">
         <input type="text" name="name" placeholder="Bucket name (alphanumeric)" required pattern="[a-zA-Z0-9_-]+">
@@ -46,7 +46,7 @@ require_once __DIR__ . '/Auth.php';
             <td><code style="font-size:11px"><?= htmlspecialchars(substr($b['key'], 0, 40)) ?>...</code></td>
             <td><?= format_size(calculate_bucket_size($b['name'])) ?></td>
             <td>
-                <form method="POST" action="delete" style="display:inline" onsubmit="return confirm('Delete this bucket and all its files?')">
+                <form method="POST" action="/admin/delete" style="display:inline" onsubmit="return confirm('Delete this bucket and all its files?')">
                     <input type="hidden" name="_csrf" value="<?= csrf_token() ?>">
                     <input type="hidden" name="name" value="<?= htmlspecialchars($b['name']) ?>">
                     <button type="submit" class="delete" style="border:none;cursor:pointer">Delete</button>

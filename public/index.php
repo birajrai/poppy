@@ -1,13 +1,14 @@
 <?php
 
-$request_uri = $_SERVER['REQUEST_URI'];
-$script_name = $_SERVER['SCRIPT_NAME'];
-
-// Remove script name from URI if present
-$path = substr($request_uri, strlen(dirname($script_name)));
-
-// Remove query string
-$path = parse_url($path, PHP_URL_PATH);
+// For PHP built-in server, route all requests through this file
+if (php_sapi_name() === 'cli-server') {
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+} else {
+    $request_uri = $_SERVER['REQUEST_URI'];
+    $script_name = $_SERVER['SCRIPT_NAME'];
+    $path = substr($request_uri, strlen(dirname($script_name)));
+    $path = parse_url($path, PHP_URL_PATH);
+}
 
 // Define allowed routes (whitelist) - sorted by length (longest first)
 $routes = [
