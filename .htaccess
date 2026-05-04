@@ -1,0 +1,8 @@
+# Protect sensitive files in project root (outside public/)
+<FilesMatch "^\.env|\.env\.example|\.gitignore|instruction\.md|README\.md$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes
